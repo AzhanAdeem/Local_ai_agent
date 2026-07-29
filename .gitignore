@@ -1,2 +1,7 @@
-# Ignore all files ending with a specific extension
+# Ignore all files ending with a specific extension.
 *.env
+#Python automatically creates when you run or import scripts.
+__pycache__/
+*.pyc
+#Created by the Visual Studio Code editor. It stores project-specific configurations.
+.vscode/
