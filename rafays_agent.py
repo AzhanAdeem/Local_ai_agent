@@ -176,7 +176,7 @@ if __name__ == "__main__":
     simulated_opponent_moves = ["Defect", "Defect", "Cooperate"]
     simulated_opponent_msgs = ["I promise we will cooperate!", "Trust me bro!", "Let's be friends."]
     
-    my_last_move = None
+    my_last_move = None # void ref
     
     for round_num in range(1, 4):
         print(f"--- ROUND {round_num} ---")
