@@ -45,7 +45,7 @@ class AdvancedAgenticMemory:
         return f"Rounds Played: {total} | Opponent Defect Rate: {defect_pct:.1f}%"
 
 
-class TrustArenaAgent:
+class Agent_4:
     """Generous Agent4: Nice, Retaliating, Forgiving, and Smart."""
     
     def __init__(self, api_key: str = None):
@@ -177,7 +177,7 @@ class TrustArenaAgent:
 # ==========================================
 # TEST SCRIPT (Simulating a game)
 if __name__ == "__main__":
-    agent = TrustArenaAgent()
+    agent = Agent_4()
     
     print("🚀Testing Agent4...\n")
     
