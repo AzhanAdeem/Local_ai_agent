@@ -1,14 +1,13 @@
 """
-arena_simulator.py - 5 Multi-Model Agents Tournament
+arena_simulator.py - 1v1 Agent Tournament
 """
-
 import os
 import time
 from typing import Dict, Tuple
 from agent import TrustArenaAgent
-#from opponents import get_5_multimodel_opponents
-from agent_v4 import Agent_4;
+from agent_v5 import Agent_5
 
+# FIXED: Removed trailing spaces in keys to prevent KeyError
 PAYOFFS = {
     ("Cooperate", "Cooperate"): (3, 3),
     ("Cooperate", "Defect"): (0, 5),
@@ -19,75 +18,78 @@ PAYOFFS = {
 def run_match(agent_a, agent_b) -> Tuple[int, int]:
     score_a, score_b = 0, 0
     
+    # Reset memory safely for both agents
     if hasattr(agent_a, 'memory'):
         agent_a.memory = type(agent_a.memory)()
-    if hasattr(agent_b, 'reset_memory'):
-        agent_b.reset_memory()
-
+    if hasattr(agent_b, 'memory'):
+        agent_b.memory = type(agent_b.memory)()
+        
     last_move_a, last_move_b = None, None
     msg_a, msg_b = "", ""
-
+    
     for r in range(1, 8):
         time.sleep(1.2)  # Delay to prevent Rate Limits
-
+        
         res_a = agent_a.process_turn(
-            current_round=r,
-            opponent_last_move=last_move_b,
-            my_last_move=last_move_a,
-            opponent_last_msg=msg_b
+            current_round=r, opponent_last_move=last_move_b, 
+            my_last_move=last_move_a, opponent_last_msg=msg_b
         )
-        move_a, msg_a = res_a["decision"], res_a["message"]
-
+        move_a = res_a["decision"].strip()
+        msg_a = res_a["message"]
+        
         res_b = agent_b.process_turn(
-            current_round=r,
-            opponent_last_move=last_move_a,
-            my_last_move=last_move_b,
-            opponent_last_msg=msg_a
+            current_round=r, opponent_last_move=last_move_a, 
+            my_last_move=last_move_b, opponent_last_msg=msg_a
         )
-        move_b, msg_b = res_b["decision"], res_b["message"]
-
+        move_b = res_b["decision"].strip()
+        msg_b = res_b["message"]
+        
+        # Fallback if LLM returns something unexpected
+        if move_a not in ["Cooperate", "Defect"]: move_a = "Defect"
+        if move_b not in ["Cooperate", "Defect"]: move_b = "Defect"
+            
         pts_a, pts_b = PAYOFFS[(move_a, move_b)]
         score_a += pts_a
         score_b += pts_b
-
+        
         last_move_a, last_move_b = move_a, move_b
-
+        print(f"  Round {r}: A={move_a:<10} | B={move_b:<10} | Scores: A={score_a}, B={score_b}")
+        
     return score_a, score_b
 
-def run_5_agent_tournament():
+def run_1v1_tournament():
     api_key = os.getenv("GROQ_API_KEY", "")
-    primary_agent = TrustArenaAgent(api_key=api_key)
-    competitors = get_5_multimodel_opponents(api_key=api_key)
-
-    all_participants = [primary_agent] + competitors
-    primary_agent.name = "OUR_PRIMARY_AGENT (Llama-3.3-70b)"
-
+    
+    agent1 = TrustArenaAgent(api_key=api_key)
+    agent2 = Agent_4(api_key=api_key)
+    
+    agent1.name = "TrustArenaAgent (Llama-3.3)"
+    agent2.name = "Agent_4 (Generous TFT)"
+    
+    all_participants = [agent1, agent2]
     total_scores: Dict[str, int] = {p.name: 0 for p in all_participants}
-
+    
     print("==================================================")
-    print("🚀 5 MULTI-MODEL AGENTS TOURNAMENT")
+    print("🚀 1v1 AGENTS TOURNAMENT")
     print("==================================================")
-
-    for i in range(len(all_participants)):
-        for j in range(i + 1, len(all_participants)):
-            p1 = all_participants[i]
-            p2 = all_participants[j]
-
-            s1, s2 = run_match(p1, p2)
-            total_scores[p1.name] += s1
-            total_scores[p2.name] += s2
-
-            print(f"⚔️ {p1.name:<32} ({s1:<2} pts) vs {p2.name:<25} ({s2:<2} pts)")
-
+    
+    # Run 3 matches to see who dominates overall
+    num_matches = 3
+    for match_num in range(1, num_matches + 1):
+        print(f"\n--- MATCH {match_num} ---")
+        s1, s2 = run_match(agent1, agent2)
+        total_scores[agent1.name] += s1
+        total_scores[agent2.name] += s2
+        print(f"⚔️ {agent1.name} ({s1} pts) vs {agent2.name} ({s2} pts)")
+        
     print("\n==================================================")
-    print("🏆 5 MULTI-MODEL LEADERBOARD")
+    print("🏆 FINAL LEADERBOARD")
     print("==================================================")
-    
     sorted_leaderboard = sorted(total_scores.items(), key=lambda x: x[1], reverse=True)
-    
     for rank, (name, total_pts) in enumerate(sorted_leaderboard, start=1):
-        crown = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else "  "
+        crown = "🥇" if rank == 1 else "🥈" if rank == 2 else "  "
         print(f"{crown} Rank {rank}: {name:<35} | Total Points: {total_pts}")
 
+# FIXED: Corrected __name__ == "__main__" syntax and indentation
 if __name__ == "__main__":
-    run_5_agent_tournament()
+    run_1v1_tournament()
