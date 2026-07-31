@@ -1,4 +1,5 @@
 """
+   RAFAY
 arena_simulator.py - 1v1 Agent Tournament
 """
 import os
@@ -63,7 +64,7 @@ def run_1v1_tournament():
     api_key = os.getenv("GROQ_API_KEY", "")
     
     agent1 = TrustArenaAgent(api_key=api_key)
-    agent2 = Agent_6(api_key=api_key)
+    agent2 = Agent_4(api_key=api_key)
     
     agent1.name = "TrustArenaAgent (Llama-3.3)"
     agent2.name = "Agent_5 (Generous, Forgiving)"
