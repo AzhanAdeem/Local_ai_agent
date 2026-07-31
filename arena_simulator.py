@@ -5,7 +5,9 @@ import os
 import time
 from typing import Dict, Tuple
 from agent import TrustArenaAgent
+from agent_v4 import Agent_4
 from agent_v5 import Agent_5
+from agent_v6 import Agent_6
 
 # FIXED: Removed trailing spaces in keys to prevent KeyError
 PAYOFFS = {
@@ -61,10 +63,10 @@ def run_1v1_tournament():
     api_key = os.getenv("GROQ_API_KEY", "")
     
     agent1 = TrustArenaAgent(api_key=api_key)
-    agent2 = Agent_4(api_key=api_key)
+    agent2 = Agent_6(api_key=api_key)
     
     agent1.name = "TrustArenaAgent (Llama-3.3)"
-    agent2.name = "Agent_4 (Generous TFT)"
+    agent2.name = "Agent_5 (Generous, Forgiving)"
     
     all_participants = [agent1, agent2]
     total_scores: Dict[str, int] = {p.name: 0 for p in all_participants}
